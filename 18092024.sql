@@ -135,35 +135,40 @@ SELECT
 FROM products
 GROUP BY categoryid
 
---"Orders" tablosunda sevk tarihi (ShippedDate) boş olan siparişlerin yüzdesini (COUNT ve toplam sipariş sayısını kullanarak) hesaplayın.
-SELECT 
-      COUNT(*)
-FROM orders
-WHERE shippeddate IS NULL
- 
- 
+SELECT
+	(SELECT 
+        COUNT(*)
+  FROM orders
+  WHERE shippeddate IS NULL) * 100.0 / COUNT(*) -- 100.00 COUNT'tan sonra yazılırsa 0 geliyor
+FROM orders  
 
 --"Products" tablosundaki en pahalı ürünün fiyatını bulun ve bir fonksiyon kullanarak fiyatı 10% artırın.
 SELECT 
-* 
+	unitprice * 1.1
 FROM products
+WHERE unitprice = (SELECT MAX(unitprice) FROM products)
 
 --"Products" tablosundaki ürün adlarının ilk 3 karakterini gösterin (SUBSTRING).
 SELECT 
-* 
+	SUBSTRING(productname, 0 , 4) AS [First 3 Letters of Product Name]
 FROM products
 
 --"Orders" tablosunda verilen siparişlerin yıl ve ay bazında kaç sipariş alındığını hesaplayın (YEAR ve MONTH fonksiyonları).
 SELECT 
-* 
-FROM products
+	 strftime('%Y', orderdate) as [Year],
+     strftime('%m', orderdate) as [Month],
+     COUNT(*)
+FROM orders
+GROUP BY [Year], [Month]
+ORDER BY [Year], [Month]
 
 --"OrderDetails" tablosunda toplam sipariş değerini (UnitPrice * Quantity) hesaplayıp, bu değeri iki ondalık basamağa yuvarlayarak gösterin.
 SELECT 
-* 
-FROM products
+	printf('%.2f', SUM(unitprice * quantity))
+FROM [Order Details]
 
 --"Products" tablosunda stokta olmayan (UnitsInStock = 0) ürünlerin fiyatlarını toplam fiyat olarak hesaplayın.
 SELECT 
-* 
+	SUM(unitprice)
 FROM products
+WHERE unitsinstock = 0
